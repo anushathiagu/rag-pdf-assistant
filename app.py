@@ -42,7 +42,7 @@ with st.sidebar:
     st.markdown("- 🤖 Google Gemini AI")
     st.markdown("- 🎈 Streamlit")
     st.divider()
-    st.markdown("**Made by Anusha** 💜")
+    st.markdown("**Made by Anusha** ")
 
 # Main content
 col1, col2 = st.columns([1, 1])
