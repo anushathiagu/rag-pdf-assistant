@@ -1,11 +1,12 @@
 import os
 from PyPDF2 import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-import google.generativeai as genai
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def get_pdf_text(pdf_file):
     text = ""
@@ -22,8 +23,15 @@ def get_text_chunks(text):
     return splitter.split_text(text)
 
 def get_answer(text_chunks, question):
-    model = genai.GenerativeModel("gemini-2.0-flash")
     context = "\n\n".join(text_chunks[:5])
-    prompt = f"Answer based on this context:\n{context}\n\nQuestion: {question}"
-    response = model.generate_content(prompt)
-    return response.text
+    prompt = f"Answer based on this context only:\n{context}\n\nQuestion: {question}\n\nAnswer:"
+    
+    response = client.chat.completions.create(
+        model="qwen/qwen3.6-27b",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant that answers questions from PDF documents."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=500
+    )
+    return response.choices[0].message.content
